@@ -112,7 +112,7 @@ def handle_client(client_socket):
 
 def main():
     listen_addr = '0.0.0.0'
-    listen_port = 8888
+    listen_port = 8080
     proxy_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     proxy_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     proxy_server.bind((listen_addr, listen_port))
