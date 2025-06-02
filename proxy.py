@@ -28,7 +28,6 @@ def handle_client(client_socket):
             client_socket.close()
             return
 
-        # HTTPS tunneling remains unchanged
         if request.startswith(b'CONNECT'):
             first_line = request.split(b'\n')[0]
             try:
@@ -56,7 +55,6 @@ def handle_client(client_socket):
             thread1.join()
             thread2.join()
         else:
-            # For plain HTTP requests.
             first_line = request.split(b'\n')[0]
             try:
                 method, url, protocol = first_line.split(b' ')
@@ -64,7 +62,6 @@ def handle_client(client_socket):
                 client_socket.close()
                 return
 
-            # Extract host:port from the URL
             http_pos = url.find(b'://')
             if http_pos != -1:
                 url = url[http_pos + 3:]
@@ -90,7 +87,6 @@ def handle_client(client_socket):
                 client_socket.close()
                 return
 
-            # Relay HTTP data from destination back to client.
             while True:
                 data = server_socket.recv(4096)
                 if data:
@@ -105,14 +101,13 @@ def handle_client(client_socket):
 
 def main():
     listen_addr = '0.0.0.0'
-    listen_port = 8443  # Use a TLS-friendly port
+    listen_port = 8443
     proxy_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     proxy_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     proxy_server.bind((listen_addr, listen_port))
     proxy_server.listen(5)
     print(f"[*] Secure proxy server listening on {listen_addr}:{listen_port}")
 
-    # Set up the SSL context – you need certificate files.
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
     ssl_context.load_cert_chain(certfile="server.crt", keyfile="server.key")
 
@@ -120,7 +115,6 @@ def main():
         client_sock, addr = proxy_server.accept()
         print(f"[*] Accepted connection from {addr}")
         try:
-            # Wrap the raw socket connection with TLS.
             secure_sock = ssl_context.wrap_socket(client_sock, server_side=True)
         except Exception as e:
             print("SSL handshake failed:", e)
